@@ -18,5 +18,9 @@ data class DeffCall(
 
     val content: String,
 
-    val troupRules: Map<String, String>
+    val troupRules: Map<String, String>,
+
+    val commandText: String?,
+
+    val command: String?
 )

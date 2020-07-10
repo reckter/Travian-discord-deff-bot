@@ -30,7 +30,9 @@ class DeffBot(
         kord.on<MessageCreateEvent> {
             println("handling message ${message.author?.username}: ${message.content}")
             if (message.content.startsWith("!deff")) startDeffCall(message)
-            if (message.content.startsWith("!return")) returnCall(message)
+            if (message.content.startsWith("!attacks")) startAttCall(message)
+            if (message.content.startsWith("!return")) returnCall(message, "!return ")
+            if (message.content.startsWith("!att")) returnCall(message, "!att ")
 
             if (message.content.startsWith("!delete")) deleteCall(message)
         }
@@ -73,6 +75,34 @@ class DeffBot(
     }
 
 
+    fun startAttCall(message: Message) {
+        println("start att")
+        val string = message.content.removePrefix("!attacks ")
+        val (name, content) = string.split(" ".toRegex(), 2)
+
+        val existing = repository.findOneByName(name)
+        if(existing != null) {
+            val updated = repository.save(existing.copy(content = content))
+            updateDeffPost(updated)
+            runBlocking { message.delete() }
+            return
+        }
+
+        val call = repository.save(DeffCall(
+            name = name,
+            discordChannelId = message.channelId.value,
+            content = content,
+            troupRules = emptyMap(),
+            commandText = "<Angegriffenes dorf: Angreifer aus Dorf>",
+            command = "att"
+        ))
+
+        println(call)
+        updateDeffPost(call)
+
+        runBlocking { message.delete() }
+    }
+
     fun startDeffCall(message: Message) {
         println("start deff")
         val string = message.content.removePrefix("!deff ")
@@ -90,7 +120,9 @@ class DeffBot(
             name = name,
             discordChannelId = message.channelId.value,
             content = content,
-            troupRules = emptyMap()
+            troupRules = emptyMap(),
+            commandText = "<Regeln>",
+            command = "return"
         ))
 
         println(call)
@@ -99,8 +131,8 @@ class DeffBot(
         runBlocking { message.delete() }
     }
 
-    fun returnCall(message: Message) {
-        val string = message.content.removePrefix("!return ")
+    fun returnCall(message: Message, prefix: String) {
+        val string = message.content.removePrefix(prefix)
         val splittedName =  string.split("\n".toRegex(), 2)
 
         val (name, player, content) = if(splittedName.size == 2) {
@@ -152,12 +184,13 @@ class DeffBot(
             |${call.content}
             | 
             |Truppen zurückschicken: 
-            |${call.troupRules.entries.joinToString("\n\n") { (player, rule) -> "```$player``` $rule" }}
+            |${call.troupRules.entries.joinToString("\n\n") { (player, rule) -> "```$player```$rule" }}
             |
-            |um zu ändern: ```!return ${call.name} <spieler-name>
+            |um zu ändern: ```!${call.command ?: "return"} ${call.name} <spieler-name>
             |
-            |<Regel>```
+            |${call.commandText ?: "<Regeln>" }```
         """.trimMargin()
+
 
 
         if(call.discordMessageId != null) {
