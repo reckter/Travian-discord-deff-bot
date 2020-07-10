@@ -1,0 +1,10 @@
+
+discord:
+    key: NzI3MjQxNTc5Njk3NDA2MDM0.Xvo-iA.vyoaWbFD3UnD-6QKkfQ9Y-CON1I
+    deffChannel: 723811251104251942 #archived chat
+    #deffChannel: 723811251104251941 #Real
+
+    adminRole: 723811250940805167
+
+mongo:
+    url: mongodb://localhost:27017/travian
