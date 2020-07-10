@@ -18,13 +18,13 @@ data class MongoConfig(
 class MongoConfiguration {
 
     @Bean
-    open fun mongoClient(configurtion: MongoConfig): MongoClient {
-        return MongoClients.create(configurtion.url)
+    open fun mongoClient(configuration: MongoConfig): MongoClient {
+        return MongoClients.create(configuration.url)
     }
 
     @Bean
-    fun mongoTemplate(mongoClient: MongoClient): MongoTemplate {
+    fun mongoTemplate(mongoClient: MongoClient, configuration: MongoConfig): MongoTemplate {
         println("mongo template")
-        return MongoTemplate(mongoClient, "travian")
+        return MongoTemplate(mongoClient, configuration.url.substringAfterLast("/") ?: "travian")
     }
 }

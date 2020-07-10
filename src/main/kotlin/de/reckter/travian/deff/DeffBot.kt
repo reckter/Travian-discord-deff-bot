@@ -28,7 +28,7 @@ class DeffBot(
     fun onInit() {
         println("onInit")
         kord.on<MessageCreateEvent> {
-            println("onMessage - 1")
+            println("handling message ${message.author?.username}: ${message.content}")
             if (message.content.startsWith("!deff")) startDeffCall(message)
             if (message.content.startsWith("!return")) returnCall(message)
 
